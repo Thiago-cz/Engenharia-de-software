@@ -7,6 +7,7 @@ class AutorController {
 			const autoresResultado =  autores.find();
 			req.resultado = autoresResultado;
 
+			
 			next();
 		} catch (erro) {
 			next(erro);
