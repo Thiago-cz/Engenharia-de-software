@@ -1,23 +1,23 @@
 import RequisicaoIncorreta from "../errors/RequisicaoIncorreta.js";
 
-async function paginacao(req,res,next){
+async function paginacao(req, res, next) {
 	try {
-		let {limite =10, pagina=1,ordenacao="_id:1"} = req.query; 
+		let { limite = 10, pagina = 1, ordenacao = "_id:1" } = req.query;
 		let [campoOrdenacao, ordem] = ordenacao.split(":");
 
 		limite = parseInt(limite);
 		pagina = parseInt(pagina);
 		ordem = parseInt(ordem);
-		const resultado = await req.resultado;
+		let resultado = await req.resultado;
 
-		if(limite > 0 && pagina > 0){
-			const resultadoPaginado = await resultado.find()
-				.skip((pagina-1)*limite)
-				.sort({[campoOrdenacao]: ordem})
+		if (limite > 0 && pagina > 0) {
+			let resultadoPaginado = await resultado.find()
+				.skip((pagina - 1) * limite)
+				.sort({ [campoOrdenacao]: ordem })
 				.limit(limite)
 				.exec();
 			res.status(200).json(resultadoPaginado);
-		}else{
+		} else {
 			next(new RequisicaoIncorreta());
 		}
 	} catch (error) {

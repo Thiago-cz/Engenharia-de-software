@@ -1,4 +1,4 @@
-import { usuario } from "../models/index.js";
+import { usuarios } from "../models/index.js";
 import NotFound from "../errors/NotFound.js";
 
 class UsuarioController {
@@ -6,10 +6,10 @@ class UsuarioController {
 	static getUser = async (req, res, next) => {
 		try {
 			const { email, senha } = req.body;
-			const result = await usuario.findOne({ email, senha });
+			const result = await usuarios.findOne({ email, senha });
             
 			if (result !== null) {
-				res.status(200).json({ message: "Usuario autorizado", status: true });
+				res.status(200).json({ message: "Usuario autorizado", status: true, id_user: result._id });
 				return;
 			}
 			res.status(401).json({ message: "Usuario não autorizado", status: false });
@@ -21,8 +21,7 @@ class UsuarioController {
 	static getUsers = async (req, res, next) => {
 		try {
 			// eslint-disable-next-line no-unused-vars
-			const user = usuario.find();
-			req.resultado = usuario;
+			req.resultado = usuarios;
 			next();
 		} catch (erro) {
 			next(erro);
@@ -32,9 +31,9 @@ class UsuarioController {
 	static createUser = async (req, res, next) => {
 		try {
 			const { email } = req.body;
-			const newUsuario = new usuario(req.body);
+			const newUsuario = new usuarios(req.body);
             
-			const userAlreadyExists = await usuario.findOne({ email });
+			const userAlreadyExists = await usuarios.findOne({ email });
 			if (userAlreadyExists != null) 
 			{
 				res.status(202).json({ message: "Não foi possível criar o usuario. Usuario ja existe!!!" });
@@ -53,7 +52,7 @@ class UsuarioController {
 		try {
 			const { id } = req.params;
             
-			const usuarioResult = await usuario.findByIdAndUpdate(id, { $set: req.body });
+			const usuarioResult = await usuarios.findByIdAndUpdate(id, { $set: req.body });
 			if (usuarioResult !== null) {
 				res.status(200).send({ message: "Usuario atualizado com sucesso" });
 				return;
@@ -68,7 +67,7 @@ class UsuarioController {
 		try {
 			const { id } = req.params;
             
-			const userResult = await usuario.findByIdAndDelete(id);
+			const userResult = await usuarios.findByIdAndDelete(id);
 			if (userResult !== null) {
 				res.status(200).send({ message: "Usuario removido com sucesso" });
 				return;

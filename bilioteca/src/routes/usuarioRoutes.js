@@ -6,9 +6,9 @@ const router = express.Router();
 
 router
 	.post("/user", UsuarioController.createUser)
-	.delete("/user/:id",UsuarioController.deleteUser)
+	.delete("/user/:id", UsuarioController.deleteUser)
 	.put("/user/:id", UsuarioController.updateUser)
-	.get("/user",UsuarioController.getUsers,paginacao)
+	.get("/user", UsuarioController.getUsers, paginacao)
 	.post("/login", UsuarioController.getUser);
 
 export default router;   
