@@ -20,7 +20,7 @@ describe("CRUD autor", () => {
 		expect(response.status).toBe(201);
 	});
 
-	it("Deve recuperar um autor pelo id buscando pelo nome e nacionalidade", async ()=>{
+	it("Deve recuperar um autor pelo id buscando pelo nome e nacionalidade", async () => {
 		// let autor = {
 		// 	nome: "Roberto",
 		// 	nacionalidade: "Brasileiro"
@@ -28,7 +28,7 @@ describe("CRUD autor", () => {
 
 		let response = await fetch("http://localhost:3000/autores/busca?nome=Roberto&nacionalidade=Brasileiro", {
 			method: "GET",
-            
+
 		});
 
 		let autor = await response.json();
@@ -39,10 +39,10 @@ describe("CRUD autor", () => {
 
 
 		expect(responseAutor.status).toBe(200);
-        
+
 	});
 
-	it("Deve editar um autor", async () =>{
+	it("Deve editar um autor", async () => {
 		let autorUpdate = {
 			nome: "Roberto Alves",
 			nacionalidade: "Brasileiro"
@@ -50,12 +50,12 @@ describe("CRUD autor", () => {
 
 		let autor = await fetch("http://localhost:3000/autores/busca?nome=Roberto&nacionalidade=Brasileiro", {
 			method: "GET",
-            
+
 		});
 
 		let autorResponse = await autor.json();
 
-		let updatedAutorResponse = await fetch("http://localhost:3000/autores/" + autorResponse[0]._id,{
+		let updatedAutorResponse = await fetch("http://localhost:3000/autores/" + autorResponse[0]._id, {
 			method: "PUT",
 			body: JSON.stringify(autorUpdate)
 		});
@@ -65,22 +65,17 @@ describe("CRUD autor", () => {
 		expect(updatedAutorResponse.status).toBe(200);
 	});
 
-	it("Deve deletar um usuario", async () =>{
-		let autorUpdate = {
-			nome: "Roberto Alves",
-			nacionalidade: "Brasileiro"
-		};
+	it("Deve deletar um usuario", async () => {
+
 
 		let autor = await fetch("http://localhost:3000/autores/busca?nome=Roberto&nacionalidade=Brasileiro", {
 			method: "GET",
-            
+
 		});
 
 		let autorResponse = await autor.json();
 
-		let deleteResponse = await fetch("http://localhost:3000/autores/" + autorResponse[0]._id, {
-			method: "DELETE"
-		});
+		let deleteResponse = await fetch("http://localhost:3000/autores/" + autorResponse[0]._id, { method: "DELETE" });
 
 		expect(deleteResponse.status).toBe(200);
 	});

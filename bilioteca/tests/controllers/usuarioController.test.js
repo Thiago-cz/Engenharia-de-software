@@ -70,7 +70,7 @@ describe("CRUD Usuario", () => {
 		expect(reponseEditUser.status).toBe(200);
 	});
 
-	it("Deve buscar um usuario por email e senha e  excluir pelo id retornado", async() => {
+	it("Deve buscar um usuario por email e senha e  excluir pelo id retornado", async () => {
 		let user = {
 			email: "robertoalves@gmail.com",
 			senha: "Roberto@123"
@@ -86,12 +86,7 @@ describe("CRUD Usuario", () => {
 
 		let userResponse = await response.json();
 
-		let deleteResponse = await fetch(`http://localhost:3000/user/${userResponse.id_user}`,{
-			headers:{
-				"Content-Type": "application/json"
-			},
-			method: "DELETE"
-		});
+		let deleteResponse = await fetch(`http://localhost:3000/user/${userResponse.id_user}`, { method: "DELETE" });
 
 		expect(deleteResponse.status).toBe(200);
 	});

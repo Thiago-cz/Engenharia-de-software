@@ -43,91 +43,6 @@ class EmprestimoController {
 		}
 	};
 
-	static createEmprestimo = async (req, res, next) => {
-		try {
-
-			let emprestimo = req.body;
-			let dateNow = new Date();
-
-			let emprestimosUsuario = await emprestimos.find({
-				usuario: mongoose.Types.ObjectId(emprestimo.usuario),
-				dataDevolucao: { $exists: false },
-				dataDevolucaoPrevista: { $lte: dateNow }
-			})
-				.sort({ dataEmprestimo: 1 })
-				.populate("livro", "titulo")
-				.exec();
-			if (emprestimosUsuario.length > 0) {
-				//verificar se usuario deve algum livro
-				let livrosPendentes = "";
-				emprestimosUsuario.forEach((elem) => {
-					livrosPendentes = `\n${livrosPendentes}${elem.livro.titulo}`;
-				});
-
-				res.status(401).send({ message: `Para realizar novos emprestimos voce deve devolver o(s) livro(s): ${livrosPendentes}` });
-			}
-
-			let livro = await livros.findById(emprestimo.livro)
-				.populate("autor", "nome")
-				.exec();
-			if (livro.quantidadeEmprestada < livro.quantidade) {
-
-				let dataDevolucaoPrevista = new Date(dateNow);
-
-				dataDevolucaoPrevista.setDate(dateNow.getDate() + emprestimo.quantidadeDias);
-				let novoEmprestimo = new emprestimos({
-					livro: emprestimo.livro,
-					usuario: emprestimo.usuario,
-					dataEmprestimo: dateNow,
-					dataDevolucaoPrevista: dataDevolucaoPrevista,
-					valor: livro.preco * emprestimo.quantidadeDias
-				});
-
-				const emprestimoCriado = await novoEmprestimo.save();
-				livros.updateOne(
-					{ _id: mongoose.Types.ObjectId(emprestimo.livro) },
-					{ $inc: { quantidadeEmprestada: 1 } }
-				)
-					.exec();
-				res.status(201).send(emprestimoCriado.toJSON());
-				return;
-			}
-			res.status(401).send({ message: "O livro solicitado não tem estoque para emprestimo!" });
-		} catch (erro) {
-			next(erro);
-		}
-	};
-
-	static updateEmprestimo = async (req, res, next) => {
-		try {
-			const id = req.params.id;
-
-			const resultEmprestimo = await emprestimos.findByIdAndUpdate(id, { $set: req.body });
-			if (resultEmprestimo !== null) {
-				res.status(200).send({ message: "Emprestimo atualizado com sucesso" });
-				return;
-			}
-			next("Id do emprestimo  não encontrado!!!");
-		} catch (erro) {
-			next(erro);
-		}
-	};
-
-	static deleteEmprestimo = async (req, res, next) => {
-		try {
-			const id = req.params.id;
-
-			const resultEmprestimo = await emprestimos.findByIdAndDelete(id);
-			if (resultEmprestimo !== null) {
-				res.status(200).send({ message: "Emprestimo removido com sucesso" });
-				return;
-			}
-			next(new NotFound("Id do emprestimo  não encontrado!!!!"));
-		} catch (erro) {
-			next(erro);
-		}
-	};
-
 	static getEmprestimosByFilter = async (req, res, next) => {
 		try {
 
@@ -150,15 +65,108 @@ class EmprestimoController {
 		}
 	};
 
+	static createEmprestimo = async (req, res, next) => {
+		try {
+
+			let emprestimo = req.body;
+			let dateNow = new Date();
+
+			let emprestimosUsuario = await emprestimos.find({
+				usuario: mongoose.Types.ObjectId(emprestimo.usuario),
+				dataDevolucao: { $exists: false },
+				dataDevolucaoPrevista: { $lte: dateNow }
+			})
+				.sort({ dataEmprestimo: 1 })
+				.populate("livro", "titulo")
+				.exec();
+			if (emprestimosUsuario.length > 0) {
+				//verificar se usuario deve algum livro
+				let livrosPendentes = "";
+				emprestimosUsuario.forEach((elem) => {
+					livrosPendentes = `\n${livrosPendentes}${elem.livro.titulo}`;
+				});
+
+				res.status(401).send({ message: `Para realizar novos emprestimos voce deve devolver o(s) livro(s): ${livrosPendentes}` });
+				return;
+			}
+
+			let livro = await livros.findById(emprestimo.livro)
+				.populate("autor", "nome")
+				.exec();
+			if (livro.quantidadeEmprestada < livro.quantidade) {
+
+				let dataDevolucaoPrevista = new Date(dateNow);
+
+				dataDevolucaoPrevista.setDate(dateNow.getDate() + emprestimo.quantidadeDias);
+				let novoEmprestimo = new emprestimos({
+					livro: emprestimo.livro,
+					usuario: emprestimo.usuario,
+					dataEmprestimo: dateNow,
+					dataDevolucaoPrevista: dataDevolucaoPrevista,
+					valor: livro.preco * emprestimo.quantidadeDias
+				});
+
+				const emprestimoCriado = await novoEmprestimo.save();
+				await livros.updateOne(
+					{ _id: mongoose.Types.ObjectId(emprestimo.livro) },
+					{ $inc: { quantidadeEmprestada: 1 } }
+				)
+					.exec();
+				res.status(201).send(emprestimoCriado.toJSON());
+				return;
+			}
+			res.status(401).send({ message: "O livro solicitado não tem estoque para emprestimo!" });
+		} catch (erro) {
+			next(erro);
+		}
+	};
+
+	static updateEmprestimo = async (req, res, next) => {
+		try {
+			const id = req.params.id;
+
+			const resultEmprestimo = await emprestimos.findByIdAndUpdate(id, { $set: req.body }).exec();
+			if (resultEmprestimo !== null) {
+				res.status(200).send({ message: "Emprestimo atualizado com sucesso" });
+				return;
+			}
+			next("Id do emprestimo  não encontrado!!!");
+		} catch (erro) {
+			next(erro);
+		}
+	};
+
+	static deleteEmprestimo = async (req, res, next) => {
+		try {
+			const id = req.params.id;
+
+			const resultEmprestimo = await emprestimos.findByIdAndDelete(id).exec();
+			if (resultEmprestimo !== null) {
+				res.status(200).send({ message: "Emprestimo removido com sucesso" });
+				return;
+			}
+			next(new NotFound("Id do emprestimo  não encontrado!!!!"));
+		} catch (erro) {
+			next(erro);
+		}
+	};
+
 	static finalizarEmprestimo = async (req, res, next) => {
 		try {
 			let { id } = req.params;
+
+			
 			let updateEmprestimo = await emprestimos.updateOne(
 				{
 					_id: mongoose.Types.ObjectId(id),
 					dataDevolucao: null
 				},
-				{ $set: { dataDevolucao: new Date() } }
+				{
+					$set: {
+						dataDevolucao: new Date()
+
+					}
+				}
 			)
 				.exec();
 			if (updateEmprestimo.modifiedCount < 1) {

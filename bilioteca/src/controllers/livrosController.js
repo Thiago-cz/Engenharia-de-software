@@ -78,15 +78,16 @@ class LivroController {
 
 			const busca = await processBusca(req.query);
 			if (busca !== null) {
-				const livrosResultado = await livros.find(busca).populate("autor");
+				const livrosResultado = await livros.find(busca).populate("autor","nome");
 
 				if (livrosResultado.length >= 1) {
 					res.status(200).send(livrosResultado);
 					return;
 				}
-
+				res.status(204).send({message: "Livro não encontrado!"});
 			} else {
-				res.status(204).end();
+				res.status(204);
+				return;
 			}
 
 		} catch (erro) {
