@@ -189,7 +189,7 @@ class EmprestimoController {
 		} catch (error) {
 			console.log(error);
 			next(error);
-			//res.status(500).send({message:"Erro interno do servidor!!!"});
+			
 		}
 	};
 

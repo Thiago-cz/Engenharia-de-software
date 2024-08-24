@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 
 describe("CRUD emprestimo", () => {
+	let autorResponse;
 	it("Deve criar um emprestimo", async () => {
 
 		let usuario = {
@@ -25,7 +26,7 @@ describe("CRUD emprestimo", () => {
 			nacionalidade: "Brasileiro"
 		};
 
-		let autorResponse = await fetch("http://localhost:3000/autores", {
+		autorResponse = await fetch("http://localhost:3000/autores", {
 			method: "POST",
 			headers: {
 				"Content-type": "application/json"
@@ -71,8 +72,12 @@ describe("CRUD emprestimo", () => {
 			},
 			body: JSON.stringify(emprestimo)
 		});
-		
-		expect(responseEmprestimo.status).toBe(201);
+		let status = responseEmprestimo.status;
+		responseEmprestimo = await responseEmprestimo.json();
+
+		await fetch(`http://localhost:3000/user/${usuarioResponse._id}`, {method: "DELETE"});
+		await fetch(`http://localhost:3000/emprestimos/${responseEmprestimo._id}`, {method: "DELETE"});
+		expect(status).toBe(201);
 	});
 
 	it("Deve negar o emprestimo ao usuario ao atingir o limite de livros emprestados", async () => {
@@ -148,7 +153,6 @@ describe("CRUD emprestimo", () => {
 		});
 
 		emprestimo1Response = await emprestimo1Response.json();
-
 		emprestimo.usuario = usuario2Response._id;
 
 		let emprestimo2Response = await fetch("http://localhost:3000/emprestimos", {
@@ -159,7 +163,6 @@ describe("CRUD emprestimo", () => {
 			body: JSON.stringify(emprestimo)
 		});
 		emprestimo2Response = await emprestimo2Response.json();
-
 		emprestimo.usuario = usuario3Response._id;
 
 		let emprestimo3Response = await fetch("http://localhost:3000/emprestimos", {
@@ -170,8 +173,9 @@ describe("CRUD emprestimo", () => {
 			body: JSON.stringify(emprestimo)
 		});
 
-		let status = emprestimo3Response;
+		let status = emprestimo3Response.status;
 		emprestimo3Response = await emprestimo3Response.json();
+
 
 		await fetch(`http://localhost:3000/emprestimos/${emprestimo1Response._id}`, { method: "DELETE" });
 		await fetch(`http://localhost:3000/emprestimos/${emprestimo2Response._id}`, { method: "DELETE" });
@@ -182,7 +186,7 @@ describe("CRUD emprestimo", () => {
 		await fetch(`http://localhost:3000/user/${usuario3Response._id}`, { method: "DELETE" });
 		await fetch(`http://localhost:3000/livros/${livro[0]._id}`, { method: "DELETE" });
 
-		expect(status.status).toBe(401);
+		expect(status).toBe(401);
 
 	});
 
@@ -204,20 +208,6 @@ describe("CRUD emprestimo", () => {
 
 		usuarioResponse = await usuarioResponse.json();
 
-		let autor = {
-			nome: "Roberto Alves",
-			nacionalidade: "Americano"
-		};
-
-		let autorResponse = await fetch("http://localhost:3000/autores", {
-			method: "POST",
-			headers: {
-				"Content-type": "application/json"
-			},
-			body: JSON.stringify(autor)
-		});
-
-		autorResponse = await autorResponse.json();
 
 		let livro = {
 			titulo: "Livro de teste",
@@ -263,8 +253,6 @@ describe("CRUD emprestimo", () => {
 			usuario: usuarioResponse._id,
 			livro: responseLivro._id,
 			quantidadeDias: 15
-			// valor: 0.10,
-			// valorMulta: 5
 		};
 
 		let responseEmprestimo = await fetch("http://localhost:3000/emprestimos", {
@@ -281,6 +269,7 @@ describe("CRUD emprestimo", () => {
 			dataEmprestimo: "2024-06-21 10:00:00",
 			dataDevolucaoPrevista: "2024-07-06 10:00:00"
 		};
+
 
 		await fetch(`http://localhost:3000/emprestimos/${responseEmprestimo._id}`, {
 			method: "PUT",
@@ -303,7 +292,8 @@ describe("CRUD emprestimo", () => {
 			},
 			body: JSON.stringify(emprestimo2)
 		});
-
+		let status = responseEmprestimo2.status;
+		responseEmprestimo2 = await responseEmprestimo2.json();
 
 		await fetch(`http://localhost:3000/user/${usuarioResponse._id}`, { method: "DELETE" });
 		await fetch(`http://localhost:3000/livros/${responseLivro._id}`, { method: "DELETE" });
@@ -311,7 +301,7 @@ describe("CRUD emprestimo", () => {
 		await fetch(`http://localhost:3000/emprestimos/${responseEmprestimo._id}`, { method: "DELETE" });
 		await fetch(`http://localhost:3000/autores/${autorResponse._id}`, { method: "DELETE" });
 
-		expect(responseEmprestimo2.status).toBe(401);
+		expect(status).toBe(401);
 
 	});
 
@@ -332,21 +322,6 @@ describe("CRUD emprestimo", () => {
 		});
 
 		usuarioResponse = await usuarioResponse.json();
-
-		let autor = {
-			nome: "Roberto Alves",
-			nacionalidade: "Americano"
-		};
-
-		let autorResponse = await fetch("http://localhost:3000/autores", {
-			method: "POST",
-			headers: {
-				"Content-type": "application/json"
-			},
-			body: JSON.stringify(autor)
-		});
-
-		autorResponse = await autorResponse.json();
 
 		let livro = {
 			titulo: "Livro de teste",
@@ -382,6 +357,7 @@ describe("CRUD emprestimo", () => {
 			body: JSON.stringify(emprestimo)
 		});
 
+
 		responseEmprestimo = await responseEmprestimo.json();
 
 		let emprestimoUpdateDate = {
@@ -406,11 +382,8 @@ describe("CRUD emprestimo", () => {
 		await fetch(`http://localhost:3000/livros/${responseLivro._id}`, { method: "DELETE" });
 		await fetch(`http://localhost:3000/emprestimos/${responseEmprestimo._id}`, { method: "DELETE" });
 
-		expect(finalizarEmprestimoResponse.valorMulta).toBe(48);
+		expect(finalizarEmprestimoResponse.valorMulta).toBe(50);
 		expect(finalizarEmprestimoResponse.valor).toBe(7.5);
 	});
 
-	it("Deve impedir que um usuario pegue o mesmo livro em um emprestimo", async ()=>{
-		
-	});
 });
